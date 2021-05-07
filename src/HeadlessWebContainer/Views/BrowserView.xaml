@@ -1,0 +1,126 @@
+﻿<Window x:Class="HeadlessWebContainer.Views.BrowserView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:m="http://schemas.masch212.de/MaSch/Wpf"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mct="http://schemas.masch212.de/MaSch/Wpf/Controls"
+        xmlns:vm="clr-namespace:HeadlessWebContainer.ViewModels"
+        MinWidth="400"
+        MinHeight="200"
+        Padding="0"
+        d:DataContext="{d:DesignInstance vm:BrowserViewModel}"
+        d:DesignHeight="450"
+        d:DesignWidth="800"
+        KeyDown="Window_KeyDown"
+        KeyUp="Window_KeyUp"
+        mc:Ignorable="d">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"
+                      CornerRadius="0"
+                      GlassFrameThickness="1"
+                      ResizeBorderThickness="5"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Style BasedOn="{StaticResource {x:Type mct:IconButton}}" TargetType="mct:IconButton">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Margin" Value="1,0" />
+        </Style>
+        <Style BasedOn="{StaticResource {x:Type mct:IconToggleButton}}" TargetType="mct:IconToggleButton">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Margin" Value="1,0" />
+        </Style>
+    </Window.Resources>
+    <Border Background="{m:ThemeValue Key=WindowContentBackgroundBrush}"
+            BorderBrush="{m:ThemeValue Key=WindowMainBorderBrush}"
+            BorderThickness="{m:ThemeValue Key=WindowMainBorderThickness}"
+            SnapsToDevicePixels="True">
+        <Grid>
+            <Border>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsTitlePinned}" Value="True">
+                                <Setter Property="Margin" Value="0,30,0,0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <cefSharp:ChromiumWebBrowser x:Name="WebBrowser" />
+            </Border>
+            <Border Height="30"
+                    VerticalAlignment="Top"
+                    Background="{m:ThemeValue Key=NormalBackgroundBrush}"
+                    MouseLeftButtonDown="Title_MouseLeftButtonDown"
+                    Visibility="{Binding IsTitleVisible, Converter={StaticResource BoolToVisibility}}">
+                <DockPanel>
+                    <StackPanel MinWidth="100"
+                                DockPanel.Dock="Left"
+                                Orientation="Horizontal">
+                        <Image Margin="5"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Source="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Icon}" />
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="16"
+                                   Foreground="{m:ThemeValue Key=WindowTitleBrush}"
+                                   Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}" />
+                    </StackPanel>
+                    <mct:WindowButtons x:Name="TitleButtons"
+                                       Margin="0,0,5,0"
+                                       VerticalAlignment="Top"
+                                       DockPanel.Dock="Right" />
+                    <DockPanel Height="24"
+                               Margin="20,0,20,0"
+                               VerticalAlignment="Center">
+                        <StackPanel VerticalAlignment="Center"
+                                    DockPanel.Dock="Left"
+                                    Orientation="Horizontal">
+                            <mct:IconButton Command="{Binding ElementName=WebBrowser, Path=BackCommand}"
+                                            Icon="{m:MaterialDesignIcon Icon=ChevronLeft}"
+                                            ToolTip="Go Back" />
+                            <mct:IconButton Command="{Binding ElementName=WebBrowser, Path=ForwardCommand}"
+                                            Icon="{m:MaterialDesignIcon Icon=ChevronRight}"
+                                            ToolTip="Go Forward" />
+                            <mct:IconButton Command="{Binding ElementName=WebBrowser, Path=ReloadCommand}"
+                                            Icon="{m:MaterialDesignIcon Icon=Refresh}"
+                                            ToolTip="Refresh Page (F5)" />
+                            <mct:IconButton Click="HomeButton_Click"
+                                            Icon="{m:MaterialDesignIcon Icon=HomeOutline}"
+                                            ToolTip="Go to home page" />
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center"
+                                    DockPanel.Dock="Right"
+                                    Orientation="Horizontal">
+                            <mct:IconToggleButton Icon="{m:MaterialDesignIcon Icon=PinOutline}"
+                                                  IsChecked="{Binding IsTitlePinned}"
+                                                  ToolTip="Pin/Unpin Titlebar" />
+                        </StackPanel>
+                        <mct:TextBox MinWidth="100"
+                                     Margin="1,0"
+                                     Padding="8,2"
+                                     VerticalContentAlignment="Center"
+                                     Text="{Binding ElementName=WebBrowser, Path=Address}">
+                            <mct:TextBox.Style>
+                                <Style BasedOn="{StaticResource {x:Type mct:TextBox}}" TargetType="mct:TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsKeyboardFocused" Value="False">
+                                            <Setter Property="Foreground" Value="{m:ThemeValue Key=DisabledForegroundBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </mct:TextBox.Style>
+                        </mct:TextBox>
+                    </DockPanel>
+                </DockPanel>
+            </Border>
+            <mct:BusyIndicator Height="5"
+                               VerticalAlignment="Top"
+                               CircleMode="False"
+                               IsEnabled="{Binding ElementName=WebBrowser, Path=IsLoading}" />
+        </Grid>
+    </Border>
+</Window>
