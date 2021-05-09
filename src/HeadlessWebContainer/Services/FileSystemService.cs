@@ -29,18 +29,35 @@ namespace HeadlessWebContainer.Services
         public BitmapImage LoadImage(string imageFilePath)
         {
             var img = new BitmapImage();
-            img.BeginInit();
-            img.UriSource = new Uri(imageFilePath);
-            img.EndInit();
+
+            using (var fs = new FileStream(imageFilePath, FileMode.Open))
+            {
+                img.BeginInit();
+                img.StreamSource = fs;
+                img.CacheOption = BitmapCacheOption.OnLoad;
+                img.EndInit();
+            }
+
+            img.Freeze();
+
             return img;
         }
 
         public BitmapImage LoadDefaultImage()
         {
             var img = new BitmapImage();
-            img.BeginInit();
-            img.UriSource = DefaultIconPath;
-            img.EndInit();
+
+            var request = PackRequestFactory.Create(DefaultIconPath);
+            using (var response = request.GetResponse())
+            {
+                img.BeginInit();
+                img.StreamSource = response.GetResponseStream();
+                img.CacheOption = BitmapCacheOption.OnLoad;
+                img.EndInit();
+            }
+
+            img.Freeze();
+
             return img;
         }
 

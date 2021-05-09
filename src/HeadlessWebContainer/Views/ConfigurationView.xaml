@@ -120,6 +120,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Image Width="48"
                            Height="48"
+                           RenderOptions.BitmapScalingMode="HighQuality"
                            Source="{Binding SelectedProfile.Icon}" />
                     <Button Margin="10,0,0,0"
                             VerticalAlignment="Center"

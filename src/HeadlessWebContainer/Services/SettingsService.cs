@@ -145,7 +145,7 @@ namespace HeadlessWebContainer.Services
             var profilesToDelete = profileIndex.Keys.Except(profiles.Select(x => x.Name!)).ToArray();
             foreach (var p in profilesToDelete)
             {
-                Directory.Delete(GetProfilePath(profileIndex[p]));
+                Directory.Delete(GetProfilePath(profileIndex[p]), true);
                 profileIndex.Remove(p);
             }
 
