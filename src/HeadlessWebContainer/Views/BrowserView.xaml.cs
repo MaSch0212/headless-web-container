@@ -1,7 +1,8 @@
 ﻿using CefSharp;
-using HeadlessWebContainer.Models;
+using HeadlessWebContainer.Services;
 using HeadlessWebContainer.ViewModels;
 using MaSch.Core;
+using MaSch.Presentation.Wpf.Common;
 using System.Windows;
 using System.Windows.Input;
 
@@ -9,12 +10,14 @@ namespace HeadlessWebContainer.Views
 {
     public partial class BrowserView
     {
+        private readonly ISettingsService _settingsService;
         private readonly string _homePage;
 
         public BrowserViewModel ViewModel => (BrowserViewModel)DataContext;
 
         public BrowserView(string homePage)
         {
+            ServiceContext.GetService(out _settingsService);
             _homePage = homePage;
 
             DataContext = new BrowserViewModel();
@@ -22,16 +25,19 @@ namespace HeadlessWebContainer.Views
 
             Loaded += (s, e) =>
             {
-                var settings = ServiceContext.GetService<GuiSettings>();
-                settings.ApplyToWindow(this);
+                var settings = _settingsService.GuiSettings;
+                WindowPosition.ApplyToWindow(settings.WindowPositions, this);
                 ViewModel.IsTitlePinned = settings.IsTitlePinned;
                 TitleButtons.SetWindowState(WindowState);
             };
             Closed += (s, e) =>
             {
-                var settings = ServiceContext.GetService<GuiSettings>();
+                var settings = _settingsService.GuiSettings;
                 settings.IsTitlePinned = ViewModel.IsTitlePinned;
-                settings.UpdateFromWindow(this);
+                settings.BrowserHomeUrl = _homePage;
+                settings.BrowserWindowTitle = Title;
+                WindowPosition.AddWindowToList(settings.WindowPositions, this);
+                _settingsService.SaveGuiSettings();
             };
             Activated += (s, e) => ViewModel.ForceShowTitle = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
             Deactivated += (s, e) => ViewModel.ForceShowTitle = false;

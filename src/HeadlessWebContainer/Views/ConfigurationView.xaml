@@ -1,0 +1,188 @@
+﻿<mct:Window x:Class="HeadlessWebContainer.Views.ConfigurationView"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:m="http://schemas.masch212.de/MaSch/Wpf"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:mct="http://schemas.masch212.de/MaSch/Wpf/Controls"
+            xmlns:vm="clr-namespace:HeadlessWebContainer.ViewModels"
+            Title="Headless Web Container Configuration"
+            Width="1020"
+            Height="880"
+            d:DataContext="{d:DesignInstance vm:ConfigurationViewModel}"
+            Icon="../Resources/Icon.ico"
+            OnlyClose="True"
+            ResizeMode="NoResize"
+            mc:Ignorable="d">
+    <Window.Resources>
+        <CollectionViewSource x:Key="SortedProfiles" Source="{Binding Profiles}">
+            <CollectionViewSource.SortDescriptions>
+                <componentmodel:SortDescription Direction="Ascending" PropertyName="Name" />
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="3">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style BasedOn="{StaticResource {x:Type mct:IconButton}}" TargetType="mct:IconButton">
+                        <Setter Property="Padding" Value="8" />
+                        <Setter Property="Width" Value="40" />
+                        <Setter Property="Height" Value="40" />
+                        <Setter Property="Margin" Value="0,0,5,0" />
+                    </Style>
+                    <Style TargetType="Separator">
+                        <Setter Property="Width" Value="15" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </StackPanel.Resources>
+
+                <mct:IconButton Command="{Binding UndoCommand}"
+                                Icon="{m:MaterialDesignIcon Icon=UndoVariant}"
+                                ToolTip="Undo changes" />
+                <mct:IconButton Command="{Binding SaveCommand}"
+                                Icon="{m:MaterialDesignIcon Icon=ContentSave}"
+                                ToolTip="Save changes" />
+                <Separator />
+                <mct:IconButton Command="{Binding CreateProfileCommand}"
+                                Icon="{m:MaterialDesignIcon Icon=Plus}"
+                                ToolTip="Create new profile" />
+                <mct:IconButton Command="{Binding CreateProfileShortcutCommand}"
+                                CommandParameter="{Binding SelectedProfile}"
+                                Icon="{m:MaterialDesignIcon Icon=Link}"
+                                ToolTip="Create Shortcut to selected profile" />
+                <mct:IconButton Command="{Binding DeleteProfileCommand}"
+                                CommandParameter="{Binding SelectedProfile}"
+                                Icon="{m:MaterialDesignIcon Icon=TrashCan}"
+                                ToolTip="Delete selected profile">
+                    <m:Theming.ThemeOverrides>
+                        <m:ThemeOverrideCollection>
+                            <m:ThemeOverride Key="HighlightColor">
+                                <Color>Red</Color>
+                            </m:ThemeOverride>
+                        </m:ThemeOverrideCollection>
+                    </m:Theming.ThemeOverrides>
+                </mct:IconButton>
+                <Separator />
+            </StackPanel>
+            <mct:StatusMessage Service="{Binding StatusService}" />
+        </DockPanel>
+
+        <GroupBox Grid.Row="2"
+                  Grid.Column="0"
+                  Header="Profiles">
+            <ListBox ItemsSource="{Binding Source={StaticResource SortedProfiles}}" SelectedItem="{Binding SelectedProfile}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2"
+                  Grid.Column="2"
+                  Header="{Binding SelectedProfile.Name}"
+                  IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegation}}"
+                  Visibility="{Binding SelectedProfile, Converter={StaticResource NullToHidden}}">
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style BasedOn="{StaticResource {x:Type Label}}" TargetType="Label">
+                        <Setter Property="Margin" Value="0,10,0,0" />
+                    </Style>
+                </StackPanel.Resources>
+
+                <Label Content="Title" />
+                <TextBox Text="{Binding SelectedProfile.Title}" />
+
+                <Label Content="Url" />
+                <TextBox Text="{Binding SelectedProfile.Url}" />
+
+                <Label Content="Icon" />
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="48"
+                           Height="48"
+                           Source="{Binding SelectedProfile.Icon}" />
+                    <Button Margin="10,0,0,0"
+                            VerticalAlignment="Center"
+                            Command="{Binding ChangeProfileIconCommand}"
+                            CommandParameter="{Binding SelectedProfile}"
+                            Content="Change Icon..." />
+                </StackPanel>
+
+                <GroupBox Margin="0,10,0,0"
+                          HorizontalContentAlignment="Stretch"
+                          Header="Theme">
+                    <StackPanel>
+                        <CheckBox Content="Use Dark Theme" IsChecked="{Binding SelectedProfile.UseDarkTheme}" />
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Row="0"
+                                   Grid.Column="0"
+                                   Margin="0"
+                                   Content="Accent Color" />
+                            <mct:ColorPickerControl Grid.Row="1"
+                                                    Grid.Column="0"
+                                                    IsMiniView="True"
+                                                    SelectedColor="{Binding SelectedProfile.HighlightColor, Mode=TwoWay}" />
+
+                            <Label Grid.Row="0"
+                                   Grid.Column="2"
+                                   Margin="0"
+                                   Content="Alt. Accent Color" />
+                            <mct:ColorPickerControl Grid.Row="1"
+                                                    Grid.Column="2"
+                                                    IsMiniView="True"
+                                                    SelectedColor="{Binding SelectedProfile.HoverHighlightColor, Mode=TwoWay}" />
+
+                            <Label Grid.Row="2"
+                                   Grid.Column="0"
+                                   Content="Accent Contrast Color" />
+                            <mct:ColorPickerControl Grid.Row="3"
+                                                    Grid.Column="0"
+                                                    IsMiniView="True"
+                                                    SelectedColor="{Binding SelectedProfile.HighlightContrastColor, Mode=TwoWay}" />
+
+                            <Label Grid.Row="2"
+                                   Grid.Column="2"
+                                   Content="Alt. Accent Contrast Color" />
+                            <mct:ColorPickerControl Grid.Row="3"
+                                                    Grid.Column="2"
+                                                    IsMiniView="True"
+                                                    SelectedColor="{Binding SelectedProfile.HoverHighlightContrastColor, Mode=TwoWay}" />
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</mct:Window>

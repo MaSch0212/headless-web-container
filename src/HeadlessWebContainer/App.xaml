@@ -10,6 +10,12 @@
             </ResourceDictionary.MergedDictionaries>
 
             <mcv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+            <mcv:BoolNegationConverter x:Key="BoolNegation" />
+            <mcv:ValueConverterGroup x:Key="NullToHidden">
+                <mcv:IsEqualConverter CompareExactObject="True" ForcedParameter="{x:Null}" />
+                <mcv:BoolNegationConverter />
+                <mcv:BoolToVisibilityConverter UseCollapse="False" />
+            </mcv:ValueConverterGroup>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

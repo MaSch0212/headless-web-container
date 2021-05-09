@@ -2,10 +2,12 @@
 {
     public partial class StartErrorView
     {
-        public string? ErrorMessage { get; set; }
+        public string ErrorMessage { get; }
 
-        public StartErrorView()
+        public StartErrorView(string errorMessage)
         {
+            ErrorMessage = errorMessage;
+
             InitializeComponent();
         }
 
