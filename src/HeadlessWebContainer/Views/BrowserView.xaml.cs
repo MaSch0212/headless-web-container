@@ -11,11 +11,11 @@ namespace HeadlessWebContainer.Views
     public partial class BrowserView
     {
         private readonly ISettingsService _settingsService;
-        private string _homePage;
+        private string? _homePage;
 
         public BrowserViewModel ViewModel => (BrowserViewModel)DataContext;
 
-        public string HomePage
+        public string? HomePage
         {
             get => _homePage;
             set
