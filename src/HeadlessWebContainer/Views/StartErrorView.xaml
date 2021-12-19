@@ -4,7 +4,7 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:mct="http://schemas.masch212.de/MaSch/Wpf/Controls"
-            Title="Headless Web Container - Error"
+            Title="Headless Web Container"
             Width="800"
             Height="450"
             Icon="../Resources/Icon.ico"

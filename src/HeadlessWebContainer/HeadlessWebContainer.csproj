@@ -17,7 +17,7 @@
     <Platforms>x64</Platforms>
 
     <!-- Package Info -->
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Marc Schmidt</Authors>
     <Configurations>Debug;Release;Debug_MaSchLocal</Configurations>
   </PropertyGroup>
@@ -29,8 +29,8 @@
 
   <ItemGroup Condition=" '$(MASCH_SOURCES)' == '' or '$(Configuration)' != 'Debug_MaSchLocal' ">
     <PackageReference Include="MaSch.Generators" Version="0.3.2" />
-    <PackageReference Include="MaSch.Presentation.Wpf.Controls" Version="0.2.1" />
-    <PackageReference Include="MaSch.Presentation.Wpf.MaterialDesign" Version="0.1.5" />
+    <PackageReference Include="MaSch.Presentation.Wpf.Controls" Version="0.2.5" />
+    <PackageReference Include="MaSch.Presentation.Wpf.MaterialDesign" Version="0.1.7" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(MASCH_SOURCES)' != '' and '$(Configuration)' == 'Debug_MaSchLocal' ">
@@ -46,17 +46,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
+    <PackageReference Include="MaSch.Console.Cli" Version="0.4.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="securifybv.ShellLink" Version="0.1.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.376">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="CefSharp.Wpf.NETCore" Version="89.0.170" />
+    <PackageReference Include="CefSharp.Wpf.NETCore" Version="96.0.180" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,5 +68,13 @@
     <ZipDirectory SourceDirectory="$(PublishDir)" DestinationFile="$(OutputZipPath)" Overwrite="true" />
     <Message Text="##vso[task.setvariable variable=AppVersion;]$(Version)" Importance="high" />
   </Target>
+
+  <ItemGroup>
+    <PackageReference Update="chromiumembeddedframework.runtime.win-x64" Version="96.0.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="chromiumembeddedframework.runtime.win-x86" Version="96.0.18" />
+  </ItemGroup>
 
 </Project>

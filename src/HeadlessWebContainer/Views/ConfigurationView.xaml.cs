@@ -14,11 +14,11 @@ namespace HeadlessWebContainer.Views
 
         public ConfigurationViewModel ViewModel => (ConfigurationViewModel)DataContext;
 
-        public ConfigurationView()
+        public ConfigurationView(ConfigurationViewModel viewModel, ISettingsService settingsService)
         {
-            ServiceContext.GetService(out _settingsService);
+            _settingsService = Guard.NotNull(settingsService, nameof(settingsService));
 
-            DataContext = new ConfigurationViewModel();
+            DataContext = viewModel;
             InitializeComponent();
 
             Loaded += (s, e) =>

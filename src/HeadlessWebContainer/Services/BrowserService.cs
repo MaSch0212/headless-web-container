@@ -1,8 +1,6 @@
-﻿using CefSharp;
-using CefSharp.Wpf;
-using HeadlessWebContainer.Views;
+﻿using HeadlessWebContainer.Views;
+using MaSch.Core;
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -11,35 +9,22 @@ namespace HeadlessWebContainer.Services
 {
     public class BrowserService : IBrowserService
     {
-        private readonly string _browserCachePath;
+        private readonly BrowserView _browserView;
 
-        public BrowserService(string browserCachePath)
+        public BrowserService(BrowserView browserView)
         {
-            _browserCachePath = browserCachePath;
-        }
-
-        public void InitializeBrowser()
-        {
-            Directory.CreateDirectory(_browserCachePath);
-            var settings = new CefSettings()
-            {
-                CachePath = _browserCachePath,
-            };
-            settings.CefCommandLineArgs.Add("persist_session_cookies", "1");
-            Cef.Initialize(settings);
+            _browserView = Guard.NotNull(browserView, nameof(browserView));
         }
 
         public Window ShowBrowserWindow(string homeUrl, string? title, ImageSource? icon, CultureInfo? language)
         {
             language ??= CultureInfo.GetCultureInfo("en-US");
-            var result = new BrowserView(homeUrl)
-            {
-                Title = title ?? string.Empty,
-                Icon = icon,
-                Language = XmlLanguage.GetLanguage(language.IetfLanguageTag),
-            };
-            result.Show();
-            return result;
+            _browserView.Title = title ?? string.Empty;
+            _browserView.Icon = icon;
+            _browserView.Language = XmlLanguage.GetLanguage(language.IetfLanguageTag);
+            _browserView.Show();
+            _browserView.WebBrowser.Address = homeUrl;
+            return _browserView;
         }
     }
 }

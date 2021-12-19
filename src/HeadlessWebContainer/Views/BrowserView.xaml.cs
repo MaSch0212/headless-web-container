@@ -15,12 +15,11 @@ namespace HeadlessWebContainer.Views
 
         public BrowserViewModel ViewModel => (BrowserViewModel)DataContext;
 
-        public BrowserView(string homePage)
+        public BrowserView(BrowserViewModel viewModel, ISettingsService settingsService)
         {
-            ServiceContext.GetService(out _settingsService);
-            _homePage = homePage;
+            _settingsService = Guard.NotNull(settingsService, nameof(settingsService));
 
-            DataContext = new BrowserViewModel();
+            DataContext = viewModel;
             InitializeComponent();
 
             Loaded += (s, e) =>
@@ -47,8 +46,6 @@ namespace HeadlessWebContainer.Views
             TitleButtons.NormalizeButtonClicked += () => WindowState = WindowState.Normal;
             TitleButtons.MaximizeButtonClicked += () => WindowState = WindowState.Maximized;
             StateChanged += (s, e) => TitleButtons.SetWindowState(WindowState);
-
-            WebBrowser.Address = _homePage;
         }
 
         protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)

@@ -62,13 +62,13 @@ namespace HeadlessWebContainer.ViewModels
         [DependsOn(nameof(IsLoading))]
         public ICommand CreateProfileShortcutCommand { get; }
 
-        public ConfigurationViewModel()
+        public ConfigurationViewModel(IFileSystemService fileSystemService, ISettingsService settingsService)
         {
+            _fileSystemService = fileSystemService;
+            _settingsService = settingsService;
+
             if (!DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
-                ServiceContext.GetService(out _fileSystemService);
-                ServiceContext.GetService(out _settingsService);
-
                 Profiles = new ObservableCollection<ProfileSettings>(_settingsService.GetAllProfiles());
                 StatusService = new StatusMessageService();
                 StatusService.StatusChanged += (s, e) => IsLoading = e.Status == StatusType.Loading;

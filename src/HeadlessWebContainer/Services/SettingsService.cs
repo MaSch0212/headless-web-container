@@ -1,9 +1,12 @@
 ﻿using HeadlessWebContainer.Models;
+using HeadlessWebContainer.Tools;
+using MaSch.Console.Cli.Runtime;
 using MaSch.Core;
 using MaSch.Core.Extensions;
 using MaSch.Presentation.Wpf;
 using MaSch.Presentation.Wpf.Themes;
 using MaSch.Presentation.Wpf.ThemeValues;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,6 +20,8 @@ namespace HeadlessWebContainer.Services
 {
     public class SettingsService : ISettingsService
     {
+        internal static readonly string DefaultProfileIndexPath = Path.Combine(App.AppDataPath, "profile-index.json");
+
         private const string GuiSettingsFileName = "settings.gui.json";
 
         private readonly IFileSystemService _fileSystemService;
@@ -28,10 +33,15 @@ namespace HeadlessWebContainer.Services
         public GuiSettings GuiSettings
             => _guiSettings ??= _fileSystemService.LoadJsonFromFile<GuiSettings>(_guiSettingsPath, () => new());
 
-        public SettingsService(string profileIndexPath, string profile)
+        [ActivatorUtilitiesConstructor]
+        public SettingsService(IFileSystemService fileSystemService, ICliOptionsProvider optionsProvider)
+            : this(fileSystemService, DefaultProfileIndexPath, optionsProvider.GetOptions<BaseTool>().GetProfileName())
         {
-            ServiceContext.GetService(out _fileSystemService);
+        }
 
+        public SettingsService(IFileSystemService fileSystemService, string profileIndexPath, string profile)
+        {
+            _fileSystemService = Guard.NotNull(fileSystemService, nameof(fileSystemService));
             _profileIndexPath = profileIndexPath;
             _profileDirPath = GetProfilePath(GetProfileId(profile));
             _guiSettingsPath = Path.Combine(_profileDirPath, GuiSettingsFileName);
