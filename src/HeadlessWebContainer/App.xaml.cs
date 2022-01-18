@@ -45,7 +45,13 @@ namespace HeadlessWebContainer
             _ = app.Run(Environment.GetCommandLineArgs().Skip(1).ToArray());
             if (!BaseTool.HasAnyToolsBeenExecuted)
             {
-                new StartErrorView(consoleWriter.ToString()).ShowDialog();
+                var consoleOutput = string.Join(
+                    Environment.NewLine,
+                    consoleWriter.ToString()
+                        .Replace("\r", string.Empty)
+                        .Split('\n')
+                        .Select(x => x.TrimEnd()));
+                new StartErrorView(consoleOutput).ShowDialog();
                 Shutdown(-1);
             }
         }
