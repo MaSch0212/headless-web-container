@@ -14,8 +14,8 @@
         d:DataContext="{d:DesignInstance vm:BrowserViewModel}"
         d:DesignHeight="450"
         d:DesignWidth="800"
-        KeyDown="Window_KeyDown"
-        KeyUp="Window_KeyUp"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewKeyUp="Window_PreviewKeyUp"
         mc:Ignorable="d">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0"
@@ -36,7 +36,7 @@
             <Setter Property="Margin" Value="1,0" />
         </Style>
     </Window.Resources>
-    <Border Background="{m:ThemeValue Key=WindowContentBackgroundBrush}"
+    <Border Background="{m:ThemeValue Key=NormalBackgroundBrush}"
             BorderBrush="{m:ThemeValue Key=WindowMainBorderBrush}"
             BorderThickness="{m:ThemeValue Key=WindowMainBorderThickness}"
             SnapsToDevicePixels="True">
@@ -45,7 +45,10 @@
                 <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsTitlePinned}" Value="True">
+                            <DataTrigger Binding="{Binding ElementName=Window, Path=IsLoading}" Value="True">
+                                <Setter Property="Margin" Value="0,5,0,0" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsTitleVisible}" Value="True">
                                 <Setter Property="Margin" Value="0,30,0,0" />
                             </DataTrigger>
                         </Style.Triggers>

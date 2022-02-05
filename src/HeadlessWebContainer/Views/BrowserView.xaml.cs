@@ -104,26 +104,6 @@ namespace HeadlessWebContainer.Views
             Show();
         }
 
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.F5 && !e.IsRepeat)
-            {
-                WebBrowser.Reload();
-            }
-            else if ((e.Key == Key.LeftCtrl || e.Key == Key.Right) && !e.IsRepeat)
-            {
-                ViewModel.ForceShowTitle = true;
-            }
-        }
-
-        private void Window_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
-            {
-                ViewModel.ForceShowTitle = false;
-            }
-        }
-
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
             WebBrowser.Source = _homePage;
@@ -155,6 +135,22 @@ namespace HeadlessWebContainer.Views
             if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return uri;
             return new Uri("https://" + url);
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.Key == Key.LeftCtrl || e.Key == Key.Right) && !e.IsRepeat)
+            {
+                ViewModel.ForceShowTitle = true;
+            }
+        }
+
+        private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
+            {
+                ViewModel.ForceShowTitle = false;
+            }
         }
     }
 }
