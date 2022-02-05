@@ -1,6 +1,4 @@
-﻿using CefSharp;
-using CefSharp.Wpf;
-using HeadlessWebContainer.Services;
+﻿using HeadlessWebContainer.Services;
 using HeadlessWebContainer.Tools;
 using HeadlessWebContainer.ViewModels;
 using HeadlessWebContainer.Views;
@@ -41,7 +39,6 @@ namespace HeadlessWebContainer
                 })
                 .Build();
 
-            InitializeBrowser();
             _ = app.Run(Environment.GetCommandLineArgs().Skip(1).ToArray());
             if (!BaseTool.HasAnyToolsBeenExecuted)
             {
@@ -67,17 +64,6 @@ namespace HeadlessWebContainer
             {
                 MessageBox.Show(e.Exception.ToString());
             }
-        }
-
-        private void InitializeBrowser()
-        {
-            Directory.CreateDirectory(BrowserCachePath);
-            var settings = new CefSettings()
-            {
-                CachePath = BrowserCachePath,
-            };
-            settings.CefCommandLineArgs.Add("persist_session_cookies", "1");
-            Cef.Initialize(settings);
         }
     }
 }

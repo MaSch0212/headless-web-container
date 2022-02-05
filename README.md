@@ -7,7 +7,7 @@ Application to open web pages without any toolbars.
 
 ## 🐱‍🏍 Getting Started
 
-1. Install [Microsoft Visual C++ 2019 Redistributable](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022). A minimum of VC++ 2019 is required, higher versions are backwards compatible.
+1. Install [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
 2. Download and extract the ZIP file from the [latest release](https://github.com/MaSch0212/headless-web-container/releases/latest) to some folder 
 3. Start the `HeadlessWebContainer.exe`.
 
