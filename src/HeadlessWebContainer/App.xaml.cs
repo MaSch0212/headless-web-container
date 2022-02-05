@@ -14,7 +14,7 @@ namespace HeadlessWebContainer
     public partial class App : Application
     {
         internal static readonly string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MaSch", "HeadlessWebContainer");
-        internal static readonly string BrowserCachePath = Path.Combine(AppDataPath, "browser-cache");
+        internal static readonly string BrowserCachePath = Path.Combine(AppDataPath, "browser-cache-wv2");
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {

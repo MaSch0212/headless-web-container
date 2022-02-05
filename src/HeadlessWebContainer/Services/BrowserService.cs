@@ -22,8 +22,7 @@ namespace HeadlessWebContainer.Services
             _browserView.Title = title ?? string.Empty;
             _browserView.Icon = icon;
             _browserView.Language = XmlLanguage.GetLanguage(language.IetfLanguageTag);
-            _browserView.Show();
-            _browserView.HomePage = homeUrl;
+            _browserView.Show(homeUrl);
             return _browserView;
         }
     }

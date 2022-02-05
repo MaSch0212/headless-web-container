@@ -3,9 +3,12 @@ using HeadlessWebContainer.ViewModels;
 using MaSch.Core;
 using MaSch.Presentation.Wpf.Commands;
 using MaSch.Presentation.Wpf.Common;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -14,7 +17,7 @@ namespace HeadlessWebContainer.Views
     public partial class BrowserView : INotifyPropertyChanged
     {
         private readonly ISettingsService _settingsService;
-        private string? _homePage;
+        private Uri? _homePage;
         private bool _isLoading;
         private string? _address;
 
@@ -47,17 +50,6 @@ namespace HeadlessWebContainer.Views
             }
         }
 
-        [DisallowNull]
-        public string? HomePage
-        {
-            get => _homePage;
-            set
-            {
-                _homePage = value;
-                WebBrowser.Source = GetUri(value);
-            }
-        }
-
         public BrowserView(BrowserViewModel viewModel, ISettingsService settingsService)
         {
             _settingsService = Guard.NotNull(settingsService, nameof(settingsService));
@@ -68,6 +60,8 @@ namespace HeadlessWebContainer.Views
 
             DataContext = viewModel;
             InitializeComponent();
+
+            WebBrowser.Loaded += async (s, e) => await InitWebView();
 
             Loaded += (s, e) =>
             {
@@ -80,7 +74,7 @@ namespace HeadlessWebContainer.Views
             {
                 var settings = _settingsService.GuiSettings;
                 settings.IsTitlePinned = ViewModel.IsTitlePinned;
-                settings.BrowserHomeUrl = _homePage;
+                settings.BrowserHomeUrl = _homePage?.ToString();
                 settings.BrowserWindowTitle = Title;
                 WindowPosition.AddWindowToList(settings.WindowPositions, this);
                 _settingsService.SaveGuiSettings();
@@ -93,6 +87,21 @@ namespace HeadlessWebContainer.Views
             TitleButtons.NormalizeButtonClicked += () => WindowState = WindowState.Normal;
             TitleButtons.MaximizeButtonClicked += () => WindowState = WindowState.Maximized;
             StateChanged += (s, e) => TitleButtons.SetWindowState(WindowState);
+        }
+
+        private async Task InitWebView()
+        {
+            Directory.CreateDirectory(App.BrowserCachePath);
+            var env = await CoreWebView2Environment.CreateAsync(userDataFolder: App.BrowserCachePath);
+            await WebBrowser.EnsureCoreWebView2Async(env);
+
+            WebBrowser.Source = _homePage;
+        }
+
+        public void Show(string homePage)
+        {
+            _homePage = GetUri(homePage);
+            Show();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -117,7 +126,7 @@ namespace HeadlessWebContainer.Views
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
         {
-            WebBrowser.Source = GetUri(HomePage!);
+            WebBrowser.Source = _homePage;
         }
 
         private void Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -125,17 +134,17 @@ namespace HeadlessWebContainer.Views
             DragMove();
         }
 
-        private void WebBrowser_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        private void WebBrowser_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
             IsLoading = true;
         }
 
-        private void WebBrowser_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        private void WebBrowser_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
             IsLoading = false;
         }
 
-        private void WebBrowser_SourceChanged(object sender, Microsoft.Web.WebView2.Core.CoreWebView2SourceChangedEventArgs e)
+        private void WebBrowser_SourceChanged(object sender, CoreWebView2SourceChangedEventArgs e)
         {
             _address = WebBrowser.Source.ToString();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Address)));

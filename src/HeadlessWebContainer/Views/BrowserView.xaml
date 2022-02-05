@@ -54,8 +54,7 @@
                 <wv2:WebView2 x:Name="WebBrowser"
                               NavigationStarting="WebBrowser_NavigationStarting"
                               NavigationCompleted="WebBrowser_NavigationCompleted"
-                              SourceChanged="WebBrowser_SourceChanged"
-                              Source="about:blank"/>
+                              SourceChanged="WebBrowser_SourceChanged"/>
             </Border>
             <Border Height="30"
                     VerticalAlignment="Top"
