@@ -1,5 +1,6 @@
 ﻿using MaSch.Core.Attributes;
 using MaSch.Core.Observable;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -27,5 +28,8 @@ namespace HeadlessWebContainer.Models
         public string? ProfilePath { get; set; }
         public string? IconFilePath { get; set; }
         public bool IsNewProfile { get; set; }
+
+        [RecursiveChangeTracking]
+        public ObservableCollection<HotkeyDefinition> Hotkeys { get; set; } = new();
     }
 }

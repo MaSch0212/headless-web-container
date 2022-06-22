@@ -1,13 +1,13 @@
 ﻿<Window x:Class="HeadlessWebContainer.Views.BrowserView"
-        x:Name="Window"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:m="http://schemas.masch212.de/MaSch/Wpf"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mct="http://schemas.masch212.de/MaSch/Wpf/Controls"
-        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:vm="clr-namespace:HeadlessWebContainer.ViewModels"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        x:Name="Window"
         MinWidth="400"
         MinHeight="200"
         Padding="0"
@@ -36,7 +36,8 @@
             <Setter Property="Margin" Value="1,0" />
         </Style>
     </Window.Resources>
-    <Border Background="{m:ThemeValue Key=NormalBackgroundBrush}"
+    <Border x:Name="MainBorder"
+            Background="{m:ThemeValue Key=NormalBackgroundBrush}"
             BorderBrush="{m:ThemeValue Key=WindowMainBorderBrush}"
             BorderThickness="{m:ThemeValue Key=WindowMainBorderThickness}"
             SnapsToDevicePixels="True">
@@ -55,9 +56,9 @@
                     </Style>
                 </Border.Style>
                 <wv2:WebView2 x:Name="WebBrowser"
-                              NavigationStarting="WebBrowser_NavigationStarting"
                               NavigationCompleted="WebBrowser_NavigationCompleted"
-                              SourceChanged="WebBrowser_SourceChanged"/>
+                              NavigationStarting="WebBrowser_NavigationStarting"
+                              SourceChanged="WebBrowser_SourceChanged" />
             </Border>
             <Border Height="30"
                     VerticalAlignment="Top"
@@ -106,21 +107,28 @@
                                                   IsChecked="{Binding IsTitlePinned}"
                                                   ToolTip="Pin/Unpin Titlebar" />
                         </StackPanel>
-                        <mct:TextBox MinWidth="100"
-                                     Margin="1,0"
-                                     Padding="8,2"
-                                     VerticalContentAlignment="Center"
-                                     Text="{Binding ElementName=Window, Path=Address}">
-                            <mct:TextBox.Style>
-                                <Style BasedOn="{StaticResource {x:Type mct:TextBox}}" TargetType="mct:TextBox">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsKeyboardFocused" Value="False">
-                                            <Setter Property="Foreground" Value="{m:ThemeValue Key=DisabledForegroundBrush}" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </mct:TextBox.Style>
-                        </mct:TextBox>
+
+                        <Grid MinWidth="100" Margin="1,0">
+                            <mct:TextBox x:Name="UrlTextBox"
+                                         Padding="8,2"
+                                         VerticalContentAlignment="Center"
+                                         GotKeyboardFocus="UrlTextBox_GotFocus"
+                                         LostKeyboardFocus="UrlTextBox_LostFocus"
+                                         Text="{Binding ElementName=Window, Path=Address}">
+                                <mct:TextBox.Style>
+                                    <Style BasedOn="{StaticResource {x:Type mct:TextBox}}" TargetType="mct:TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsKeyboardFocused" Value="False">
+                                                <Setter Property="Foreground" Value="{m:ThemeValue Key=DisabledForegroundBrush}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </mct:TextBox.Style>
+                            </mct:TextBox>
+                            <Border x:Name="UrlOverlay"
+                                    Background="Transparent"
+                                    MouseLeftButtonDown="UrlOverlay_MouseLeftButtonDown" />
+                        </Grid>
                     </DockPanel>
                 </DockPanel>
             </Border>

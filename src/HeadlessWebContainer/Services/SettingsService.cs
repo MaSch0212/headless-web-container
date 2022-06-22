@@ -9,6 +9,7 @@ using MaSch.Presentation.Wpf.ThemeValues;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -135,6 +136,7 @@ namespace HeadlessWebContainer.Services
                     Title = guiSettings.BrowserWindowTitle,
                     Url = guiSettings.BrowserHomeUrl,
                     Icon = icon,
+                    Hotkeys = new ObservableCollection<HotkeyDefinition>(guiSettings.Hotkeys),
 
                     UseDarkTheme = themeInfo.Item1,
                     HighlightColor = themeInfo.Item2,
@@ -195,6 +197,7 @@ namespace HeadlessWebContainer.Services
 
                 guiSettings.BrowserHomeUrl = profileSettings.Url;
                 guiSettings.BrowserWindowTitle = profileSettings.Title;
+                guiSettings.Hotkeys = profileSettings.Hotkeys.ToArray();
                 _fileSystemService.SaveJsonToFile(Path.Combine(path, GuiSettingsFileName), guiSettings);
 
                 if (profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.UseDarkTheme)) ||

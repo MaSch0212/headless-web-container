@@ -1,16 +1,20 @@
 ﻿using HeadlessWebContainer.Services;
 using HeadlessWebContainer.ViewModels;
 using MaSch.Core;
+using MaSch.Native.Windows.Input;
 using MaSch.Presentation.Wpf.Commands;
 using MaSch.Presentation.Wpf.Common;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Keys = System.Windows.Forms.Keys;
 
 namespace HeadlessWebContainer.Views
 {
@@ -20,6 +24,7 @@ namespace HeadlessWebContainer.Views
         private Uri? _homePage;
         private bool _isLoading;
         private string? _address;
+        private bool _windowMoved = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -86,7 +91,35 @@ namespace HeadlessWebContainer.Views
             TitleButtons.MinimizeButtonClicked += () => WindowState = WindowState.Minimized;
             TitleButtons.NormalizeButtonClicked += () => WindowState = WindowState.Normal;
             TitleButtons.MaximizeButtonClicked += () => WindowState = WindowState.Maximized;
-            StateChanged += (s, e) => TitleButtons.SetWindowState(WindowState);
+            StateChanged += (s, e) =>
+            {
+                TitleButtons.SetWindowState(WindowState);
+                MainBorder.Margin = WindowState == WindowState.Maximized ? new Thickness(7) : new Thickness(0);
+            };
+
+            LocationChanged += (s, e) => _windowMoved = true;
+
+            var hotkeys = _settingsService.GuiSettings.Hotkeys;
+            var keyListener = new KeyListener(100);
+            keyListener.KeyPressed += keys =>
+            {
+                var thread = new Thread(new ThreadStart(() =>
+                {
+                    var modifierKeys = Keyboard.Modifiers;
+                    foreach (var hotkey in hotkeys)
+                    {
+                        if (hotkey.ModifierKeys == modifierKeys && hotkey.Key == keys)
+                        {
+                            Dispatcher.Invoke(async () => await WebBrowser.ExecuteScriptAsync(hotkey.Script));
+                        }
+                    }
+                }));
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                thread.Join();
+            };
+            keyListener.StartListener();
+            Closed += (s, e) => keyListener.StopListener();
         }
 
         private async Task InitWebView()
@@ -111,7 +144,8 @@ namespace HeadlessWebContainer.Views
 
         private void Title_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DragMove();
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void WebBrowser_NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
@@ -151,6 +185,27 @@ namespace HeadlessWebContainer.Views
             {
                 ViewModel.ForceShowTitle = false;
             }
+        }
+
+        private void UrlOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                _windowMoved = false;
+                DragMove();
+                if (!_windowMoved)
+                    UrlTextBox.Focus();
+            }
+        }
+
+        private void UrlTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UrlOverlay.IsHitTestVisible = false;
+        }
+
+        private void UrlTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            UrlOverlay.IsHitTestVisible = true;
         }
     }
 }

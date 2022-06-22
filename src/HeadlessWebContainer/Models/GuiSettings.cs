@@ -1,4 +1,5 @@
 ﻿using MaSch.Presentation.Wpf.Common;
+using System;
 using System.Collections.Generic;
 
 namespace HeadlessWebContainer.Models
@@ -10,6 +11,7 @@ namespace HeadlessWebContainer.Models
         public string? BrowserWindowTitle { get; set; }
         public string? BrowserHomeUrl { get; set; }
         public string? IconHash { get; set; }
+        public HotkeyDefinition[] Hotkeys { get; set; } = Array.Empty<HotkeyDefinition>();
 
         public GuiSettings()
         {
