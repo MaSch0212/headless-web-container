@@ -103,20 +103,14 @@ namespace HeadlessWebContainer.Views
             var keyListener = new KeyListener(100);
             keyListener.KeyPressed += keys =>
             {
-                var thread = new Thread(new ThreadStart(() =>
+                var modifierKeys = Keyboard.Modifiers;
+                foreach (var hotkey in hotkeys)
                 {
-                    var modifierKeys = Keyboard.Modifiers;
-                    foreach (var hotkey in hotkeys)
+                    if (hotkey.ModifierKeys == modifierKeys && hotkey.Key == keys)
                     {
-                        if (hotkey.ModifierKeys == modifierKeys && hotkey.Key == keys)
-                        {
-                            Dispatcher.Invoke(async () => await WebBrowser.ExecuteScriptAsync(hotkey.Script));
-                        }
+                        Dispatcher.Invoke(async () => await WebBrowser.ExecuteScriptAsync(hotkey.Script));
                     }
-                }));
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-                thread.Join();
+                }
             };
             keyListener.StartListener();
             Closed += (s, e) => keyListener.StopListener();
