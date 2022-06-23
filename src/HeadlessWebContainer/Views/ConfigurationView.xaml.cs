@@ -36,7 +36,7 @@ namespace HeadlessWebContainer.Views
             Closing += ConfigurationView_Closing;
         }
 
-        private async void ConfigurationView_Closing(object sender, CancelEventArgs e)
+        private async void ConfigurationView_Closing(object? sender, CancelEventArgs e)
         {
             if (ViewModel.IsLoading)
             {

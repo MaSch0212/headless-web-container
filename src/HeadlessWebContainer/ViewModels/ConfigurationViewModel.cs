@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -61,6 +62,10 @@ namespace HeadlessWebContainer.ViewModels
         public ICommand ChangeProfileIconCommand { get; }
         [DependsOn(nameof(IsLoading))]
         public ICommand CreateProfileShortcutCommand { get; }
+        [DependsOn(nameof(IsLoading))]
+        public ICommand CreateHotkeyCommand { get; }
+        [DependsOn(nameof(IsLoading), nameof(SelectedProfile))]
+        public ICommand DeleteHotkeyCommand { get; }
 
         public ConfigurationViewModel(IFileSystemService fileSystemService, ISettingsService settingsService)
         {
@@ -84,6 +89,8 @@ namespace HeadlessWebContainer.ViewModels
             DeleteProfileCommand = new DelegateCommand<ProfileSettings>(x => x != null && !IsLoading, DeleteProfile);
             ChangeProfileIconCommand = new DelegateCommand<ProfileSettings>(x => x != null && !IsLoading, ChangeProfileIcon);
             CreateProfileShortcutCommand = new DelegateCommand<ProfileSettings>(x => x != null && !x.IsNewProfile && !IsLoading, CreateProfileShortcut);
+            CreateHotkeyCommand = new DelegateCommand<ProfileSettings>(x => x != null && !IsLoading, CreateHotkey);
+            DeleteHotkeyCommand = new DelegateCommand<HotkeyDefinition>(x => x != null && SelectedProfile != null && !IsLoading, DeleteHotkey);
         }
 
         public void ResetChangeTracking() => _changeTracker.ResetChangeTracking();
@@ -175,9 +182,7 @@ namespace HeadlessWebContainer.ViewModels
                     Name = inputMsgBox.SelectedText,
                     UseDarkTheme = true,
                     HighlightColor = tm.GetValue<Color>(ThemeKey.HighlightColor)!.Value,
-                    HoverHighlightColor = tm.GetValue<Color>(ThemeKey.HoverHighlightColor)!.Value,
                     HighlightContrastColor = tm.GetValue<Color>(ThemeKey.HighlightContrastColor)!.Value,
-                    HoverHighlightContrastColor = tm.GetValue<Color>(ThemeKey.HoverHighlightContrastColor)!.Value,
                     Icon = _fileSystemService.LoadDefaultImage(),
                     IsNewProfile = true,
                 };
@@ -254,6 +259,35 @@ namespace HeadlessWebContainer.ViewModels
                     0);
                 shortcut.WriteToFile(sfd.FileName);
             }
+        }
+
+        private void CreateHotkey(ProfileSettings? profile)
+        {
+            if (profile == null)
+                return;
+
+            profile.Hotkeys.Add(new HotkeyDefinition());
+        }
+
+        private void DeleteHotkey(HotkeyDefinition? hotkey)
+        {
+            if (SelectedProfile == null || hotkey == null)
+                return;
+
+            var shortCutName = new StringBuilder();
+            if (hotkey.IsControl)
+                shortCutName.Append("Ctrl + ");
+            if (hotkey.IsShift)
+                shortCutName.Append("Shift + ");
+            if (hotkey.IsAlt)
+                shortCutName.Append("Alt + ");
+            if (hotkey.IsWindows)
+                shortCutName.Append("Win + ");
+            shortCutName.Append(hotkey.Key.ToString());
+
+            var answer = MessageBox.Show($"Do you really want to delete the Hotkey?\n\nHotkey: {shortCutName}", button: MessageBoxButton.YesNo);
+            if (answer == MessageBoxResult.Yes)
+                SelectedProfile.Hotkeys.Remove(hotkey);
         }
     }
 }

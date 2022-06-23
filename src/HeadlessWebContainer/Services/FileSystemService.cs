@@ -100,7 +100,7 @@ namespace HeadlessWebContainer.Services
         public string GetFileHash(string filePath)
         {
             using var bs = new BufferedStream(File.OpenRead(filePath), 1200000);
-            var md5 = new MD5CryptoServiceProvider();
+            using var md5 = MD5.Create();
             var checksum = md5.ComputeHash(bs);
             return checksum.ToHexString();
         }

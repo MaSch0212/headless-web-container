@@ -18,7 +18,7 @@
     <Platforms>x64</Platforms>
 
     <!-- Package Info -->
-    <Version>1.3.2</Version>
+    <Version>1.4.0</Version>
     <Authors>Marc Schmidt</Authors>
     <Configurations>Debug;Release;Debug_MaSchLocal</Configurations>
   </PropertyGroup>
@@ -30,7 +30,7 @@
 
   <ItemGroup Condition=" '$(MASCH_SOURCES)' == '' or '$(Configuration)' != 'Debug_MaSchLocal' ">
     <PackageReference Include="MaSch.Console.Cli" Version="0.4.4" />
-    <PackageReference Include="MaSch.Generators" Version="0.3.2" />
+    <PackageReference Include="MaSch.Generators" Version="0.3.4" />
     <PackageReference Include="MaSch.Presentation.Wpf.Controls" Version="0.2.8" />
     <PackageReference Include="MaSch.Presentation.Wpf.MaterialDesign" Version="0.2.0" />
   </ItemGroup>

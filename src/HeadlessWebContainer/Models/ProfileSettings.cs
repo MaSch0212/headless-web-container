@@ -18,9 +18,7 @@ namespace HeadlessWebContainer.Models
 
         public bool UseDarkTheme { get; set; }
         public Color HighlightColor { get; set; }
-        public Color HoverHighlightColor { get; set; }
         public Color HighlightContrastColor { get; set; }
-        public Color HoverHighlightContrastColor { get; set; }
     }
 
     public partial class ProfileSettings : ObservableChangeTrackingObject, IObservableObject_Props

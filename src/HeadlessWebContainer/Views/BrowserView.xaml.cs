@@ -5,16 +5,14 @@ using MaSch.Native.Windows.Input;
 using MaSch.Presentation.Wpf.Commands;
 using MaSch.Presentation.Wpf.Common;
 using Microsoft.Web.WebView2.Core;
-using Microsoft.Web.WebView2.Wpf;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Keys = System.Windows.Forms.Keys;
 
 namespace HeadlessWebContainer.Views
 {
@@ -99,21 +97,14 @@ namespace HeadlessWebContainer.Views
 
             LocationChanged += (s, e) => _windowMoved = true;
 
-            var hotkeys = _settingsService.GuiSettings.Hotkeys;
-            var keyListener = new KeyListener(100);
-            keyListener.KeyPressed += keys =>
+            var executors = _settingsService.GuiSettings.Hotkeys.Select(x => new HotkeyExecutor(x, WebBrowser)).ToArray();
+            foreach (var executor in executors)
+                _ = executor.StartAsync();
+            Closed += (s, e) =>
             {
-                var modifierKeys = Keyboard.Modifiers;
-                foreach (var hotkey in hotkeys)
-                {
-                    if (hotkey.ModifierKeys == modifierKeys && hotkey.Key == keys)
-                    {
-                        Dispatcher.Invoke(async () => await WebBrowser.ExecuteScriptAsync(hotkey.Script));
-                    }
-                }
+                foreach (var executor in executors)
+                    executor.Dispose();
             };
-            keyListener.StartListener();
-            Closed += (s, e) => keyListener.StopListener();
         }
 
         private async Task InitWebView()

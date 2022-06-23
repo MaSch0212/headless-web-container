@@ -2,10 +2,15 @@
             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:componentmodel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+            xmlns:converters="clr-namespace:HeadlessWebContainer.Converters"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:ext="clr-namespace:HeadlessWebContainer.Extensions"
+            xmlns:local="clr-namespace:HeadlessWebContainer.Views"
             xmlns:m="http://schemas.masch212.de/MaSch/Wpf"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:mconv="http://schemas.masch212.de/MaSch/Wpf/Converter"
             xmlns:mct="http://schemas.masch212.de/MaSch/Wpf/Controls"
+            xmlns:models="clr-namespace:HeadlessWebContainer.Models"
             xmlns:vm="clr-namespace:HeadlessWebContainer.ViewModels"
             Title="Headless Web Container Configuration"
             Width="1020"
@@ -21,6 +26,23 @@
                 <componentmodel:SortDescription Direction="Ascending" PropertyName="Name" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
+
+        <converters:HotkeyModeToBoolConverter x:Key="HotkeyModeToBoolConverter" />
+        <mconv:ValueConverterGroup x:Key="HotkeyModeToVisibleConverter">
+            <converters:HotkeyModeToBoolConverter />
+            <mconv:BoolToVisibilityConverter />
+        </mconv:ValueConverterGroup>
+        <mconv:ValueConverterGroup x:Key="HotkeyModeToCollapseConverter">
+            <converters:HotkeyModeToBoolConverter />
+            <mconv:BoolNegationConverter />
+            <mconv:BoolToVisibilityConverter />
+        </mconv:ValueConverterGroup>
+
+        <m:ThemeOverrideCollection x:Key="RedHighlightColor">
+            <m:ThemeOverride Key="HighlightColor">
+                <Color>Red</Color>
+            </m:ThemeOverride>
+        </m:ThemeOverrideCollection>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -69,18 +91,11 @@
                                 CommandParameter="{Binding SelectedProfile}"
                                 Icon="{m:MaterialDesignIcon Icon=Link}"
                                 ToolTip="Create Shortcut to selected profile" />
-                <mct:IconButton Command="{Binding DeleteProfileCommand}"
+                <mct:IconButton m:Theming.ThemeOverrides="{StaticResource RedHighlightColor}"
+                                Command="{Binding DeleteProfileCommand}"
                                 CommandParameter="{Binding SelectedProfile}"
                                 Icon="{m:MaterialDesignIcon Icon=TrashCan}"
-                                ToolTip="Delete selected profile">
-                    <m:Theming.ThemeOverrides>
-                        <m:ThemeOverrideCollection>
-                            <m:ThemeOverride Key="HighlightColor">
-                                <Color>Red</Color>
-                            </m:ThemeOverride>
-                        </m:ThemeOverrideCollection>
-                    </m:Theming.ThemeOverrides>
-                </mct:IconButton>
+                                ToolTip="Delete selected profile" />
                 <Separator />
             </StackPanel>
             <mct:StatusMessage Service="{Binding StatusService}" />
@@ -103,87 +118,182 @@
                   Header="{Binding SelectedProfile.Name}"
                   IsEnabled="{Binding IsLoading, Converter={StaticResource BoolNegation}}"
                   Visibility="{Binding SelectedProfile, Converter={StaticResource NullToHidden}}">
-            <StackPanel>
-                <StackPanel.Resources>
-                    <Style BasedOn="{StaticResource {x:Type Label}}" TargetType="Label">
-                        <Setter Property="Margin" Value="0,10,0,0" />
-                    </Style>
-                </StackPanel.Resources>
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style BasedOn="{StaticResource {x:Type Label}}" TargetType="Label">
+                            <Setter Property="Margin" Value="0,10,0,0" />
+                        </Style>
+                    </StackPanel.Resources>
 
-                <Label Content="Title" />
-                <TextBox Text="{Binding SelectedProfile.Title}" />
+                    <Label Content="Title" />
+                    <TextBox Text="{Binding SelectedProfile.Title}" />
 
-                <Label Content="Url" />
-                <TextBox Text="{Binding SelectedProfile.Url}" />
+                    <Label Content="Url" />
+                    <TextBox Text="{Binding SelectedProfile.Url}" />
 
-                <Label Content="Icon" />
-                <StackPanel Orientation="Horizontal">
-                    <Image Width="48"
-                           Height="48"
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           Source="{Binding SelectedProfile.Icon}" />
-                    <Button Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            Command="{Binding ChangeProfileIconCommand}"
-                            CommandParameter="{Binding SelectedProfile}"
-                            Content="Change Icon..." />
-                </StackPanel>
-
-                <GroupBox Margin="0,10,0,0"
-                          HorizontalContentAlignment="Stretch"
-                          Header="Theme">
-                    <StackPanel>
-                        <CheckBox Content="Use Dark Theme" IsChecked="{Binding SelectedProfile.UseDarkTheme}" />
-                        <Grid HorizontalAlignment="Stretch">
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="10" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Row="0"
-                                   Grid.Column="0"
-                                   Margin="0"
-                                   Content="Accent Color" />
-                            <mct:ColorPickerControl Grid.Row="1"
-                                                    Grid.Column="0"
-                                                    IsMiniView="True"
-                                                    SelectedColor="{Binding SelectedProfile.HighlightColor, Mode=TwoWay}" />
-
-                            <Label Grid.Row="0"
-                                   Grid.Column="2"
-                                   Margin="0"
-                                   Content="Alt. Accent Color" />
-                            <mct:ColorPickerControl Grid.Row="1"
-                                                    Grid.Column="2"
-                                                    IsMiniView="True"
-                                                    SelectedColor="{Binding SelectedProfile.HoverHighlightColor, Mode=TwoWay}" />
-
-                            <Label Grid.Row="2"
-                                   Grid.Column="0"
-                                   Content="Accent Contrast Color" />
-                            <mct:ColorPickerControl Grid.Row="3"
-                                                    Grid.Column="0"
-                                                    IsMiniView="True"
-                                                    SelectedColor="{Binding SelectedProfile.HighlightContrastColor, Mode=TwoWay}" />
-
-                            <Label Grid.Row="2"
-                                   Grid.Column="2"
-                                   Content="Alt. Accent Contrast Color" />
-                            <mct:ColorPickerControl Grid.Row="3"
-                                                    Grid.Column="2"
-                                                    IsMiniView="True"
-                                                    SelectedColor="{Binding SelectedProfile.HoverHighlightContrastColor, Mode=TwoWay}" />
-                        </Grid>
+                    <Label Content="Icon" />
+                    <StackPanel Orientation="Horizontal">
+                        <Image Width="48"
+                               Height="48"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Source="{Binding SelectedProfile.Icon}" />
+                        <Button Margin="10,0,0,0"
+                                VerticalAlignment="Center"
+                                Command="{Binding ChangeProfileIconCommand}"
+                                CommandParameter="{Binding SelectedProfile}"
+                                Content="Change Icon..." />
                     </StackPanel>
-                </GroupBox>
-            </StackPanel>
+
+                    <GroupBox Margin="0,10,0,0"
+                              HorizontalContentAlignment="Stretch"
+                              Header="Theme">
+                        <StackPanel>
+                            <CheckBox Content="Use Dark Theme" IsChecked="{Binding SelectedProfile.UseDarkTheme}" />
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Row="0"
+                                       Grid.Column="0"
+                                       Margin="0"
+                                       Content="Accent Color" />
+                                <mct:ColorPickerControl Grid.Row="1"
+                                                        Grid.Column="0"
+                                                        IsMiniView="True"
+                                                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                                        SelectedColor="{Binding SelectedProfile.HighlightColor, Mode=TwoWay}" />
+
+                                <Label Grid.Row="0"
+                                       Grid.Column="2"
+                                       Margin="0"
+                                       Content="Accent Contrast Color" />
+                                <mct:ColorPickerControl Grid.Row="1"
+                                                        Grid.Column="2"
+                                                        IsMiniView="True"
+                                                        SelectedColor="{Binding SelectedProfile.HighlightContrastColor, Mode=TwoWay}" />
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Margin="0,10,0,0" Header="Hotkeys">
+                        <Grid>
+                            <mct:IconButton Width="28"
+                                            Height="28"
+                                            Margin="0,-31,16,0"
+                                            Padding="4"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Command="{Binding CreateHotkeyCommand}"
+                                            CommandParameter="{Binding SelectedProfile}"
+                                            Icon="{m:MaterialDesignIcon Icon=Plus}" />
+                            <ItemsControl ItemsSource="{Binding SelectedProfile.Hotkeys}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:HotkeyDefinition}">
+                                        <GroupBox>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition />
+                                                    <RowDefinition Height="5" />
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+                                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                                    <StackPanel.Resources>
+                                                        <Style BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="CheckBox">
+                                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                                        </Style>
+                                                    </StackPanel.Resources>
+                                                    <CheckBox Content="Key Press" IsChecked="{Binding Mode, Converter={StaticResource HotkeyModeToBoolConverter}}" />
+                                                    <CheckBox Margin="40,0,0,0"
+                                                              Content="Ctrl"
+                                                              IsChecked="{Binding IsControl}" />
+                                                    <CheckBox Content="Shift" IsChecked="{Binding IsShift}" />
+                                                    <CheckBox Content="Alt" IsChecked="{Binding IsAlt}" />
+                                                    <CheckBox Content="Win" IsChecked="{Binding IsWindows}" />
+                                                    <TextBlock Margin="40,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Text="Key: " />
+                                                    <ComboBox Width="150"
+                                                              DisplayMemberPath="Description"
+                                                              ItemsSource="{ext:KeysList}"
+                                                              SelectedValue="{Binding Key}"
+                                                              SelectedValuePath="Value" />
+                                                </StackPanel>
+                                                <mct:IconButton Grid.Column="1"
+                                                                Width="28"
+                                                                Height="28"
+                                                                Padding="4"
+                                                                HorizontalAlignment="Right"
+                                                                m:Theming.ThemeOverrides="{StaticResource RedHighlightColor}"
+                                                                Command="{Binding RelativeSource={RelativeSource AncestorType=local:ConfigurationView}, Path=DataContext.DeleteHotkeyCommand}"
+                                                                CommandParameter="{Binding}"
+                                                                DockPanel.Dock="Right"
+                                                                Icon="{m:MaterialDesignIcon Icon=TrashCan}" />
+
+                                                <Grid Grid.Row="2" Visibility="{Binding Mode, Converter={StaticResource HotkeyModeToVisibleConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="150" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Margin="0,6,0,0" Text="JavaScript on key press" />
+                                                    <mct:TextBox Grid.Column="1"
+                                                                 AcceptsReturn="True"
+                                                                 FontFamily="Consolas"
+                                                                 Text="{Binding KeyPressScript}"
+                                                                 TextAlignment="Left"
+                                                                 TextWrapping="Wrap" />
+                                                </Grid>
+
+                                                <Grid Grid.Row="2" Visibility="{Binding Mode, Converter={StaticResource HotkeyModeToCollapseConverter}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="150" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <TextBlock Margin="0,6,0,0" Text="JavaScript on key down" />
+                                                    <mct:TextBox Grid.Column="1"
+                                                                 Margin="0,0,0,5"
+                                                                 AcceptsReturn="True"
+                                                                 FontFamily="Consolas"
+                                                                 Text="{Binding KeyDownScript}"
+                                                                 TextAlignment="Left"
+                                                                 TextWrapping="Wrap" />
+                                                    <TextBlock Grid.Row="1"
+                                                               Margin="0,6,0,0"
+                                                               Text="JavaScript on key up" />
+                                                    <mct:TextBox Grid.Row="1"
+                                                                 Grid.Column="1"
+                                                                 AcceptsReturn="True"
+                                                                 FontFamily="Consolas"
+                                                                 Text="{Binding KeyUpScript}"
+                                                                 TextAlignment="Left"
+                                                                 TextWrapping="Wrap" />
+                                                </Grid>
+                                            </Grid>
+                                        </GroupBox>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </GroupBox>
+                </StackPanel>
+            </ScrollViewer>
         </GroupBox>
     </Grid>
 </mct:Window>

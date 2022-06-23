@@ -105,9 +105,7 @@ namespace HeadlessWebContainer.Services
             var defaultThemeInfo = (
                 true,
                 tm.GetValue<Color>(ThemeKey.HighlightColor)!.Value,
-                tm.GetValue<Color>(ThemeKey.HoverHighlightColor)!.Value,
-                tm.GetValue<Color>(ThemeKey.HighlightContrastColor)!.Value,
-                tm.GetValue<Color>(ThemeKey.HoverHighlightContrastColor)!.Value);
+                tm.GetValue<Color>(ThemeKey.HighlightContrastColor)!.Value);
 
             var profileIndex = _fileSystemService.LoadJsonFromFile<Dictionary<string, string>>(_profileIndexPath, () => new());
             foreach (var p in profileIndex)
@@ -125,9 +123,7 @@ namespace HeadlessWebContainer.Services
                     themeInfo = (
                         ((Color)theme.Values[nameof(ThemeKey.NormalBackgroundColor)].RawValue!) == tm.GetValue<Color>(ThemeKey.NormalBackgroundColor)!.Value,
                         ((ColorThemeValue)theme.Values[nameof(ThemeKey.HighlightColor)]).Value,
-                        ((ColorThemeValue)theme.Values[nameof(ThemeKey.HoverHighlightColor)]).Value,
-                        ((ColorThemeValue)theme.Values[nameof(ThemeKey.HighlightContrastColor)]).Value,
-                        ((ColorThemeValue)theme.Values[nameof(ThemeKey.HoverHighlightContrastColor)]).Value);
+                        ((ColorThemeValue)theme.Values[nameof(ThemeKey.HighlightContrastColor)]).Value);
                 }
 
                 yield return new ProfileSettings
@@ -140,9 +136,7 @@ namespace HeadlessWebContainer.Services
 
                     UseDarkTheme = themeInfo.Item1,
                     HighlightColor = themeInfo.Item2,
-                    HoverHighlightColor = themeInfo.Item3,
-                    HighlightContrastColor = themeInfo.Item4,
-                    HoverHighlightContrastColor = themeInfo.Item5,
+                    HighlightContrastColor = themeInfo.Item3,
 
                     ProfilePath = path,
                     IconFilePath = hasIcon ? iconFilePath : null,
@@ -202,9 +196,7 @@ namespace HeadlessWebContainer.Services
 
                 if (profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.UseDarkTheme)) ||
                     profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.HighlightColor)) ||
-                    profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.HighlightContrastColor)) ||
-                    profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.HoverHighlightColor)) ||
-                    profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.HoverHighlightContrastColor)))
+                    profileSettings.ChangeTracker.HasPropertyChanged(nameof(ProfileSettings.HighlightContrastColor)))
                 {
                     var themeFilePath = Path.Combine(path, "theme.json");
                     var theme = new
@@ -228,12 +220,12 @@ namespace HeadlessWebContainer.Services
                             HoverHighlightColor = new
                             {
                                 Type = "Color",
-                                Value = Color2Hex(profileSettings.HoverHighlightColor),
+                                Value = Color2Hex(profileSettings.HighlightColor),
                             },
                             HoverHighlightContrastColor = new
                             {
                                 Type = "Color",
-                                Value = Color2Hex(profileSettings.HoverHighlightContrastColor),
+                                Value = Color2Hex(profileSettings.HighlightContrastColor),
                             },
                         },
                     };
